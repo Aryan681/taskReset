@@ -6,13 +6,16 @@ const notion = new Client({
 
 const PAGE_ID = process.env.PAGE_ID;
 
+// Any heading containing one of these keywords will be skipped
+const SKIP_SECTION_KEYWORDS = ["Yearly Goals"];
+
 let totalBlocks = 0;
 let todoBlocks = 0;
 let resetBlocks = 0;
 
 async function getChildren(blockId) {
   let blocks = [];
-  let cursor = undefined;
+  let cursor;
 
   while (true) {
     const response = await notion.blocks.children.list({
@@ -30,17 +33,54 @@ async function getChildren(blockId) {
   return blocks;
 }
 
-async function traverse(blockId) {
+function getHeadingText(block) {
+  if (
+    block.type !== "heading_1" &&
+    block.type !== "heading_2" &&
+    block.type !== "heading_3"
+  ) {
+    return null;
+  }
+
+  return block[block.type].rich_text
+    .map((t) => t.plain_text)
+    .join("")
+    .trim();
+}
+
+async function traverse(blockId, skipSection = false) {
   const children = await getChildren(blockId);
 
-  for (const block of children) {
+  for (let i = 0; i < children.length; i++) {
+    const block = children[i];
     totalBlocks++;
 
-    if (block.type === "to_do") {
+    let currentSkip = skipSection;
+
+    // Detect headings
+    const heading = getHeadingText(block);
+
+    if (heading) {
+      currentSkip = SKIP_SECTION_KEYWORDS.some((keyword) =>
+        heading.includes(keyword)
+      );
+
+      if (currentSkip) {
+        console.log(`Skipping section: ${heading}`);
+      }
+    }
+
+    // Reset only if not inside skipped section
+    if (!currentSkip && block.type === "to_do") {
       todoBlocks++;
 
       if (block.to_do.checked) {
-        console.log(`Resetting: ${block.id}`);
+        console.log(
+          `Resetting: ${
+            block.to_do.rich_text.map((t) => t.plain_text).join("") ||
+            block.id
+          }`
+        );
 
         await notion.blocks.update({
           block_id: block.id,
@@ -48,7 +88,6 @@ async function traverse(blockId) {
             rich_text: block.to_do.rich_text,
             checked: false,
             color: block.to_do.color,
-            children: [],
           },
         });
 
@@ -57,20 +96,25 @@ async function traverse(blockId) {
     }
 
     if (block.has_children) {
-      await traverse(block.id);
+      await traverse(block.id, currentSkip);
     }
   }
 }
 
 (async () => {
-  console.log("Starting checklist reset...");
-  console.log("--------------------------------");
+  try {
+    console.log("Starting checklist reset...");
+    console.log("--------------------------------");
 
-  await traverse(PAGE_ID);
+    await traverse(PAGE_ID);
 
-  console.log("--------------------------------");
-  console.log(`Blocks scanned : ${totalBlocks}`);
-  console.log(`Todo blocks    : ${todoBlocks}`);
-  console.log(`Reset          : ${resetBlocks}`);
-  console.log("Finished!");
+    console.log("--------------------------------");
+    console.log(`Blocks scanned : ${totalBlocks}`);
+    console.log(`Todo blocks    : ${todoBlocks}`);
+    console.log(`Reset          : ${resetBlocks}`);
+    console.log("Finished!");
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 })();
