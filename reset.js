@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client";
 
 const notion = new Client({
- auth: process.env.NOTION_TOKEN,,
+ auth: process.env.NOTION_TOKEN,
 });
 
 // This is the Quote block that contains ALL Daily Goal todos
