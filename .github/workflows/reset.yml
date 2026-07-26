@@ -1,30 +1,24 @@
 name: Reset Notion Checklist
 
 on:
-  schedule:
-    # 12:00 AM IST
-    - cron: "30 18 * * *"
-
   workflow_dispatch:
+  schedule:
+    - cron: "30 18 * * *"
 
 jobs:
   reset:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install Dependencies
-        run: npm install
+      - run: npm install
 
-      - name: Run Reset Script
-        run: node reset.js
+      - run: node reset.js
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          PAGE_ID: ${{ secrets.PAGE_ID }}
+          DAILY_GOAL_BLOCK_ID: ${{ secrets.DAILY_GOAL_BLOCK_ID }}
