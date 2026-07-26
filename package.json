@@ -1,0 +1,15 @@
+{
+  "name": "taskreset",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "reset.js",
+  "scripts": {
+    "start": "node reset.js"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.3.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
