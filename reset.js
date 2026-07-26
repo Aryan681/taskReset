@@ -4,18 +4,15 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const PAGE_ID = process.env.PAGE_ID;
-
-// Any heading containing one of these keywords will be skipped
-const SKIP_SECTION_KEYWORDS = ["Yearly Goals"];
+const DAILY_GOAL_BLOCK_ID = process.env.DAILY_GOAL_BLOCK_ID;
 
 let totalBlocks = 0;
 let todoBlocks = 0;
 let resetBlocks = 0;
 
 async function getChildren(blockId) {
-  let blocks = [];
-  let cursor;
+  const blocks = [];
+  let cursor = undefined;
 
   while (true) {
     const response = await notion.blocks.children.list({
@@ -33,54 +30,22 @@ async function getChildren(blockId) {
   return blocks;
 }
 
-function getHeadingText(block) {
-  if (
-    block.type !== "heading_1" &&
-    block.type !== "heading_2" &&
-    block.type !== "heading_3"
-  ) {
-    return null;
-  }
-
-  return block[block.type].rich_text
-    .map((t) => t.plain_text)
-    .join("")
-    .trim();
-}
-
-async function traverse(blockId, skipSection = false) {
+async function traverse(blockId) {
   const children = await getChildren(blockId);
 
-  for (let i = 0; i < children.length; i++) {
-    const block = children[i];
+  for (const block of children) {
     totalBlocks++;
 
-    let currentSkip = skipSection;
-
-    // Detect headings
-    const heading = getHeadingText(block);
-
-    if (heading) {
-      currentSkip = SKIP_SECTION_KEYWORDS.some((keyword) =>
-        heading.includes(keyword)
-      );
-
-      if (currentSkip) {
-        console.log(`Skipping section: ${heading}`);
-      }
-    }
-
-    // Reset only if not inside skipped section
-    if (!currentSkip && block.type === "to_do") {
+    if (block.type === "to_do") {
       todoBlocks++;
 
       if (block.to_do.checked) {
-        console.log(
-          `Resetting: ${
-            block.to_do.rich_text.map((t) => t.plain_text).join("") ||
-            block.id
-          }`
-        );
+        const text = block.to_do.rich_text
+          ?.map((t) => t.plain_text)
+          .join("")
+          .trim();
+
+        console.log(`Resetting: ${text || block.id}`);
 
         await notion.blocks.update({
           block_id: block.id,
@@ -96,17 +61,25 @@ async function traverse(blockId, skipSection = false) {
     }
 
     if (block.has_children) {
-      await traverse(block.id, currentSkip);
+      await traverse(block.id);
     }
   }
 }
 
 (async () => {
   try {
-    console.log("Starting checklist reset...");
+    if (!process.env.NOTION_TOKEN) {
+      throw new Error("Missing NOTION_TOKEN");
+    }
+
+    if (!DAILY_GOAL_BLOCK_ID) {
+      throw new Error("Missing DAILY_GOAL_BLOCK_ID");
+    }
+
+    console.log("Starting Daily Goal reset...");
     console.log("--------------------------------");
 
-    await traverse(PAGE_ID);
+    await traverse(DAILY_GOAL_BLOCK_ID);
 
     console.log("--------------------------------");
     console.log(`Blocks scanned : ${totalBlocks}`);
@@ -114,6 +87,7 @@ async function traverse(blockId, skipSection = false) {
     console.log(`Reset          : ${resetBlocks}`);
     console.log("Finished!");
   } catch (err) {
+    console.error("Reset failed:");
     console.error(err);
     process.exit(1);
   }
