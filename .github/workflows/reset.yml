@@ -21,4 +21,6 @@ jobs:
       - run: node reset.js
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          DAILY_GOAL_BLOCK_ID: ${{ secrets.DAILY_GOAL_BLOCK_ID }}
+          PAGE_ID: ${{ secrets.PAGE_ID }}
+          START_BLOCK_ID: ${{ secrets.START_BLOCK_ID }}
+          END_BLOCK_ID: ${{ secrets.END_BLOCK_ID }}

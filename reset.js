@@ -4,11 +4,14 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const DAILY_GOAL_BLOCK_ID = process.env.DAILY_GOAL_BLOCK_ID;
+const PAGE_ID = process.env.PAGE_ID;
+const START_BLOCK_ID = process.env.START_BLOCK_ID;
+const END_BLOCK_ID = process.env.END_BLOCK_ID;
 
 let totalBlocks = 0;
 let todoBlocks = 0;
 let resetBlocks = 0;
+let inTargetRange = false;
 
 async function getChildren(blockId) {
   const blocks = [];
@@ -36,7 +39,12 @@ async function traverse(blockId) {
   for (const block of children) {
     totalBlocks++;
 
-    if (block.type === "to_do") {
+    if (block.id === START_BLOCK_ID) {
+      inTargetRange = true;
+      console.log(`Entered target range at: ${block.id}`);
+    }
+
+    if (inTargetRange && block.type === "to_do") {
       todoBlocks++;
 
       if (block.to_do.checked) {
@@ -63,6 +71,11 @@ async function traverse(blockId) {
     if (block.has_children) {
       await traverse(block.id);
     }
+
+    if (block.id === END_BLOCK_ID) {
+      console.log(`Exited target range at: ${block.id}`);
+      inTargetRange = false;
+    }
   }
 }
 
@@ -71,15 +84,20 @@ async function traverse(blockId) {
     if (!process.env.NOTION_TOKEN) {
       throw new Error("Missing NOTION_TOKEN");
     }
-
-    if (!DAILY_GOAL_BLOCK_ID) {
-      throw new Error("Missing DAILY_GOAL_BLOCK_ID");
+    if (!PAGE_ID) {
+      throw new Error("Missing PAGE_ID");
+    }
+    if (!START_BLOCK_ID) {
+      throw new Error("Missing START_BLOCK_ID");
+    }
+    if (!END_BLOCK_ID) {
+      throw new Error("Missing END_BLOCK_ID");
     }
 
-    console.log("Starting Daily Goal reset...");
+    console.log("Starting targeted checklist reset...");
     console.log("--------------------------------");
 
-    await traverse(DAILY_GOAL_BLOCK_ID);
+    await traverse(PAGE_ID);
 
     console.log("--------------------------------");
     console.log(`Blocks scanned : ${totalBlocks}`);
