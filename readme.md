@@ -1,45 +1,98 @@
+<div align="center">
+
 # 🔄 Notion Daily Task Auto Reset
 
-> Stop manually resetting your Notion checklist every day.
+### *Never reset your Notion checklist manually again.*
 
-A lightweight automation that automatically resets only the **Daily Goal** checklist in your Notion workspace while leaving every other block untouched.
+Automatically resets your **Daily Goal** checklist every day while keeping the rest of your Notion workspace completely untouched.
 
-The workflow runs automatically every day using **GitHub Actions**, so your planner is ready every morning without any manual effort.
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Notion API](https://img.shields.io/badge/Notion-API-000000?logo=notion)](https://developers.notion.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub-Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
----
+🎥 **Demo:** *Add your video/gif here*
 
-## ✨ Demo
-
-https://github.com/user-attachments/assets/YOUR_DEMO_VIDEO
-
----
-
-## 🚀 Features
-
-- ✅ Automatically resets completed daily tasks
-- ✅ Leaves yearly goals and other page content untouched
-- ✅ Runs automatically every day with GitHub Actions
-- ✅ Uses the official Notion API
-- ✅ No local server required
-- ✅ Lightweight and easy to configure
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+# ✨ Why?
 
-- Node.js
-- Notion API
-- GitHub Actions
+Every morning I found myself doing the exact same thing.
+
+- Open Notion
+- Uncheck yesterday's completed tasks
+- Start working
+
+It only took a minute.
+
+But repeating the same task every single day felt unnecessary.
+
+So instead of changing my routine...
+
+I automated it.
 
 ---
 
-## 📂 Project Structure
+# 🚀 What it does
+
+✅ Finds your Daily Goal checklist
+
+✅ Resets only completed tasks
+
+✅ Preserves every other block on the page
+
+✅ Runs automatically every day
+
+✅ Zero manual work
+
+---
+
+# ⚡ How it works
+
+```text
+GitHub Actions
+        │
+        ▼
+Runs every midnight
+        │
+        ▼
+Node.js Script
+        │
+        ▼
+Notion API
+        │
+        ▼
+Find Daily Goal section
+        │
+        ▼
+Reset completed todos
+        │
+        ▼
+Done ✅
+```
+
+---
+
+# 🛠 Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| Node.js | Runtime |
+| Notion API | Read & Update blocks |
+| GitHub Actions | Scheduled automation |
+
+---
+
+# 📂 Project Structure
 
 ```text
 .
-├── .github
-│   └── workflows
+├── .github/
+│   └── workflows/
 │       └── reset.yml
+│
 ├── reset.js
 ├── package.json
 └── README.md
@@ -47,114 +100,44 @@ https://github.com/user-attachments/assets/YOUR_DEMO_VIDEO
 
 ---
 
-## ⚙️ How It Works
+# ⚙️ Installation
 
-1. Connects to your Notion workspace.
-2. Finds the **Daily Goal** section.
-3. Traverses all nested blocks.
-4. Detects completed to-do items.
-5. Marks them as incomplete.
-6. Ignores every other block on the page.
-
-This ensures your planner starts fresh every day without affecting long-term goals or notes.
-
----
-
-## 📸 Before
-
-✔ Daily tasks completed
-
-```
-☑ LeetCode
-☑ Backend Revision
-☑ Reading
-☑ Apply for Jobs
-```
-
----
-
-## 📸 After
-
-Automatically reset at midnight
-
-```
-☐ LeetCode
-☐ Backend Revision
-☐ Reading
-☐ Apply for Jobs
-```
-
----
-
-## 🔧 Setup
-
-### 1. Clone the repository
+Clone the repository
 
 ```bash
 git clone https://github.com/Aryan681/taskReset.git
-cd taskReset
 ```
 
----
-
-### 2. Install dependencies
+Install dependencies
 
 ```bash
 npm install
 ```
 
----
+Create a Notion Integration.
 
-### 3. Create a Notion Integration
-
-Visit
-
-https://www.notion.so/my-integrations
-
-- Create a new integration
-- Copy the Internal Integration Token
-- Share your Notion page with the integration
-
----
-
-### 4. Add GitHub Secrets
-
-Go to
-
-```
-Repository
-→ Settings
-→ Secrets and Variables
-→ Actions
-```
+Share your page with the integration.
 
 Add
 
-```
-NOTION_TOKEN
+```env
+NOTION_TOKEN=your_secret_here
 ```
 
-Example
+Run
 
-```
-secret_xxxxxxxxxxxxxxxxxxxxxxxxx
+```bash
+node reset.js
 ```
 
 ---
 
-### 5. Configure Workflow
+# 🕛 Automation
 
-The workflow is located at
-
-```
-.github/workflows/reset.yml
-```
-
-Example schedule
+The project uses **GitHub Actions**.
 
 ```yaml
-on:
-  schedule:
+schedule:
     - cron: "30 18 * * *"
 ```
 
@@ -162,91 +145,55 @@ Runs every day at **12:00 AM IST**.
 
 ---
 
-## ▶ Running Locally
+# 🔒 Safety
 
-```bash
-node reset.js
-```
+Unlike generic Notion scripts, this project **doesn't touch your whole page.**
 
-Example output
+It only resets the **Daily Goal** section.
 
-```text
-Connecting to Notion...
+Everything else remains untouched.
 
-Found Daily Goal section.
-
-Scanning todos...
-
-Reset: LeetCode
-Reset: Reading
-Reset: Backend Revision
-
-Done!
-```
+- ✅ Headings
+- ✅ Notes
+- ✅ Images
+- ✅ Yearly Goals
+- ✅ Other databases
 
 ---
 
-## 🔒 Safety
-
-The script only modifies the Daily Goal section.
-
-It **does not**
-
-- Delete blocks
-- Modify headings
-- Touch yearly goals
-- Change notes
-- Edit any unrelated content
-
----
-
-## 💡 Why?
-
-Every day I found myself manually resetting the same checklist before starting work.
-
-Instead of repeating the same clicks forever, I automated it.
-
-It only saves a minute or two each day—but those minutes add up.
+# 💡 Motivation
 
 > The best automation is the one you never have to think about again.
 
+This project saves only a minute or two each day.
+
+But it removes one repetitive task forever.
+
 ---
 
-## 🚧 Future Improvements
+# ⭐ Future Improvements
 
-- [ ] Support multiple Daily Goal sections
-- [ ] Reset recurring weekly tasks
-- [ ] Configuration via environment variables
-- [ ] Custom reset schedules
+- [ ] Weekly recurring tasks
+- [ ] Multiple Daily Goal sections
 - [ ] Docker support
+- [ ] CLI interface
+- [ ] NPM package
 
 ---
 
-## 🤝 Contributing
+# 🤝 Contributing
 
-Contributions are always welcome.
+Pull requests are welcome.
 
-Feel free to open an issue or submit a pull request.
-
----
-
-## ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
-
-It really helps!
+If you find a bug or have an idea, feel free to open an issue.
 
 ---
 
-## 📜 License
+# 👨‍💻 Author
 
-MIT License
+### Aryan Singh
 
----
-
-## 👨‍💻 Author
-
-**Aryan Singh**
+Backend Developer
 
 GitHub
 
@@ -254,4 +201,12 @@ https://github.com/Aryan681
 
 LinkedIn
 
-https://www.linkedin.com/in/aryansingh1-2-/
+https://linkedin.com/in/aryansingh1-2-/
+
+---
+
+<div align="center">
+
+### ⭐ If you found this useful, consider giving the repository a star.
+
+</div>
